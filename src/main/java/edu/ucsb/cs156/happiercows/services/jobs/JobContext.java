@@ -13,8 +13,8 @@ public class JobContext {
 
   public void log(String message) {
     log.info("Job %s: %s".formatted(job.getId(), message));
-    String previousLog = job.getLog() == null ? "" : (job.getLog() + "\n");
-    job.setLog(previousLog + message);
+    // String previousLog = job.getLog() == null ? "" : (job.getLog() + "\n");
+    job.setLog(job.getLog() + message + "\n");
     jobsRepository.save(job);
   }
 }
