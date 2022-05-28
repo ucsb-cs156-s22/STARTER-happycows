@@ -36,11 +36,12 @@ import edu.ucsb.cs156.happiercows.entities.jobs.Job;
 import edu.ucsb.cs156.happiercows.repositories.UserRepository;
 import edu.ucsb.cs156.happiercows.repositories.jobs.JobsRepository;
 import edu.ucsb.cs156.happiercows.services.jobs.JobService;
+import edu.ucsb.cs156.happiercows.testconfig.TestConfig;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @WebMvcTest(controllers = JobsController.class)
-@Import(JobService.class)
+@Import(TestConfig.class)
 @AutoConfigureDataJpa
 public class JobsControllerTests extends ControllerTestCase {
 
@@ -96,7 +97,7 @@ public class JobsControllerTests extends ControllerTestCase {
         .createdAt(null)
         .updatedAt(null)
         .status("running")
-        .log("Hello World! from test job!")
+        .log("Hello World! from test job!\n")
         .build();
 
     Job jobCompleted = Job.builder()
@@ -105,7 +106,7 @@ public class JobsControllerTests extends ControllerTestCase {
         .createdAt(null)
         .updatedAt(null)
         .status("complete")
-        .log("Hello World! from test job!\nGoodbye from test job!")
+        .log("Hello World! from test job!\nGoodbye from test job!\n")
         .build();
 
     when(jobsRepository.save(any(Job.class))).thenReturn(jobStarted).thenReturn(jobCompleted);
@@ -119,6 +120,7 @@ public class JobsControllerTests extends ControllerTestCase {
     Job jobReturned = objectMapper.readValue(responseString, Job.class);
 
     assertEquals("running", jobReturned.getStatus());
+    assertEquals(user, jobReturned.getCreatedBy());
 
     await().atMost(1, SECONDS)
         .untilAsserted(() -> verify(jobsRepository, times(2)).save(eq(jobStarted)));
@@ -140,7 +142,7 @@ public class JobsControllerTests extends ControllerTestCase {
         .createdAt(null)
         .updatedAt(null)
         .status("running")
-        .log("Hello World! from test job!")
+        .log("Hello World! from test job!\n")
         .build();
 
     Job jobFailed = Job.builder()
@@ -149,7 +151,7 @@ public class JobsControllerTests extends ControllerTestCase {
         .createdAt(null)
         .updatedAt(null)
         .status("error")
-        .log("Hello World! from test job!\nFail!")
+        .log("Hello World! from test job!\nFail!\n")
         .build();
 
     when(jobsRepository.save(any(Job.class))).thenReturn(jobStarted).thenReturn(jobFailed);
@@ -162,6 +164,8 @@ public class JobsControllerTests extends ControllerTestCase {
     Job jobReturned = objectMapper.readValue(responseString, Job.class);
 
     assertEquals("running", jobReturned.getStatus());
+    assertEquals(user, jobReturned.getCreatedBy());
+
 
     await().atMost(1, SECONDS)
         .untilAsserted(() -> verify(jobsRepository, times(2)).save(eq(jobStarted)));

@@ -1,8 +1,11 @@
 package edu.ucsb.cs156.happiercows.services.jobs;
 
+import edu.ucsb.cs156.happiercows.entities.User;
 import edu.ucsb.cs156.happiercows.entities.jobs.Job;
 import edu.ucsb.cs156.happiercows.repositories.jobs.JobsRepository;
 import edu.ucsb.cs156.happiercows.services.CurrentUserService;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -11,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class JobService {
   @Autowired
   private JobsRepository jobsRepository;
@@ -24,8 +28,11 @@ public class JobService {
 
 
   public Job runAsJob(JobContextConsumer jobFunction) {
+
+    User currentUser = currentUserService.getUser();
+    log.info("currentUser={}",currentUser);
     Job job = Job.builder()
-      .createdBy(currentUserService.getUser())
+      .createdBy(currentUser)
       .status("running")
       .build();
 

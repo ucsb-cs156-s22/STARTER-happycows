@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 
 import edu.ucsb.cs156.happiercows.services.CurrentUserService;
 import edu.ucsb.cs156.happiercows.services.GrantedAuthoritiesService;
+import edu.ucsb.cs156.happiercows.services.jobs.JobService;
 
 @TestConfiguration
 public class TestConfig {
@@ -17,5 +18,10 @@ public class TestConfig {
     @Bean
     public GrantedAuthoritiesService grantedAuthoritiesService() {
         return new GrantedAuthoritiesService();
+    }
+
+    @Bean
+    public JobService jobService() {
+        return new JobService();
     }
 }

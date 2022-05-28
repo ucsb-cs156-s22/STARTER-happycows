@@ -9,7 +9,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,7 +29,7 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @JsonIgnore
+    @JsonSerialize(using = UserSerializer.class, as=Job.UserSummary.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id")
     private User createdBy;
@@ -35,5 +40,38 @@ public class Job {
     private LocalDateTime updatedAt;
 
     private String status;
-    private String log;
+    @Builder.Default
+    private String log = "";
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class UserSummary {
+        private long id;
+        private String email;
+        private String fullName;
+        private boolean admin;
+
+        public static UserSummary toUserSummary(User user) {
+            return UserSummary.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .admin(user.isAdmin())
+                .build();
+        }
+    }
+
+    public static class UserSerializer extends JsonSerializer<User> {
+
+        @Override
+        public void serialize(User user,
+                JsonGenerator jsonGenerator,
+                SerializerProvider serializerProvider)
+                throws IOException, JsonProcessingException {
+            
+            jsonGenerator.writeObject(UserSummary.toUserSummary(user));
+        }
+    }
 }
